@@ -1,0 +1,77 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "Pest: run all tests",
+            "type": "shell",
+            "command": "./vendor/bin/pest --compact",
+            "group": {
+                "kind": "test",
+                "isDefault": true
+            },
+            "presentation": {
+                "reveal": "always",
+                "panel": "shared"
+            }
+        },
+        {
+            "label": "PHPStan: analyse",
+            "type": "shell",
+            "command": "./vendor/bin/phpstan analyse --memory-limit=512M",
+            "group": "build",
+            "presentation": {
+                "reveal": "always",
+                "panel": "shared"
+            }
+        },
+        {
+            "label": "Pint: fix",
+            "type": "shell",
+            "command": "./vendor/bin/pint",
+            "group": "build",
+            "presentation": {
+                "reveal": "always",
+                "panel": "shared"
+            }
+        },
+        {
+            "label": "Testbench: serve",
+            "type": "shell",
+            "command": "./vendor/bin/testbench serve",
+            "group": "build",
+            "isBackground": true,
+            "dependsOn": [
+                "Testbench: workbench:build",
+                "Testbench: migrate fresh + seed"
+            ],
+            "dependsOrder": "sequence",
+            "runOptions": {
+                "runOn": "folderOpen"
+            },
+            "presentation": {
+                "reveal": "always",
+                "panel": "dedicated"
+            }
+        },
+        {
+            "label": "Testbench: migrate fresh + seed",
+            "type": "shell",
+            "command": "./vendor/bin/testbench migrate:fresh --seed --seeder=\"Workbench\\Database\\Seeders\\DatabaseSeeder\"",
+            "group": "build",
+            "presentation": {
+                "reveal": "always",
+                "panel": "shared"
+            }
+        },
+        {
+            "label": "Testbench: workbench:build",
+            "type": "shell",
+            "command": "./vendor/bin/testbench workbench:build",
+            "group": "build",
+            "presentation": {
+                "reveal": "always",
+                "panel": "shared"
+            }
+        }
+    ]
+}

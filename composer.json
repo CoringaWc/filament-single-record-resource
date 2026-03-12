@@ -1,0 +1,105 @@
+{
+    "name": "coringawc/filament-single-record-resource",
+    "description": "A Filament plugin that solves the single-record resource pattern — resources that display exactly one record per authenticated user (e.g. 'My Profile', 'My Wallet', 'My Settings') without an index page, and their arbitrarily nested child resources.",
+    "keywords": [
+        "CoringaWc",
+        "laravel",
+        "filamentphp",
+        "filament",
+        "filament-plugin",
+        "filament-single-record-resource"
+    ],
+    "homepage": "https://github.com/coringawc/filament-single-record-resource",
+    "support": {
+        "issues": "https://github.com/coringawc/filament-single-record-resource/issues",
+        "source": "https://github.com/coringawc/filament-single-record-resource"
+    },
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Argemiro Dias",
+            "email": "nt_170@hotmail.com",
+            "role": "Developer"
+        }
+    ],
+    "require": {
+        "php": "^8.2",
+        "filament/filament": "^4.0 || ^5.0",
+        "spatie/laravel-package-tools": "^1.15.0"
+    },
+    "require-dev": {
+        "larastan/larastan": "^3.0",
+        "laravel/framework": "^11.0 || ^12.0",
+        "laravel/pint": "^1.0",
+        "nunomaduro/collision": "^8.0",
+        "orchestra/testbench": "^9.0 || ^10.0",
+        "orchestra/workbench": "^9.0|^10.0",
+        "pestphp/pest": "^3.7|^4.0",
+        "pestphp/pest-plugin-arch": "^3.0|^4.0",
+        "pestphp/pest-plugin-laravel": "^3.0|^4.0",
+        "pestphp/pest-plugin-livewire": "^3.0|^4.0",
+        "rector/rector": "^2.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "CoringaWc\\FilamentSingleRecordResource\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "CoringaWc\\FilamentSingleRecordResource\\Tests\\": "tests/",
+            "Workbench\\App\\": "workbench/app/",
+            "Workbench\\Database\\Factories\\": "workbench/database/factories/",
+            "Workbench\\Database\\Seeders\\": "workbench/database/seeders/"
+        }
+    },
+    "scripts": {
+        "post-autoload-dump": [
+            "@clear",
+            "@prepare",
+            "@patch-boost",
+            "@php ./vendor/bin/testbench package:discover --ansi"
+        ],
+        "analyse": "phpstan analyse",
+        "lint": "pint",
+        "refactor": "rector",
+        "test": "pest",
+        "test:lint": "pint --test",
+        "test:refactor": "rector --dry-run",
+        "clear": "@php vendor/bin/testbench package:purge-skeleton --ansi",
+        "prepare": "@php vendor/bin/testbench package:discover --ansi",
+        "patch-boost": "@php ./bin/patch-testbench-boost.php",
+        "build": "@php vendor/bin/testbench workbench:build --ansi",
+        "serve": [
+            "Composer\\Config::disableProcessTimeout",
+            "@build",
+            "@php vendor/bin/testbench serve --ansi"
+        ]
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "CoringaWc\\FilamentSingleRecordResource\\FilamentSingleRecordResourceServiceProvider"
+            ],
+            "aliases": {
+                "FilamentSingleRecordResource": "CoringaWc\\FilamentSingleRecordResource\\Facades\\FilamentSingleRecordResource"
+            }
+        }
+    },
+    "config": {
+        "sort-packages": true,
+        "allow-plugins": {
+            "composer/package-versions-deprecated": true,
+            "pestphp/pest-plugin": true,
+            "phpstan/extension-installer": true
+        }
+    },
+    "minimum-stability": "dev",
+    "prefer-stable": true,
+    "repositories": {
+        "filament": {
+            "type": "composer",
+            "url": "https://packages.filamentphp.com/composer"
+        }
+    }
+}

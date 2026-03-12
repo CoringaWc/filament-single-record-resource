@@ -1,0 +1,64 @@
+name: 'Run Tests'
+
+on:
+  push:
+    branches: [5.x]
+  pull_request:
+    branches: [5.x]
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: true
+      matrix:
+        php: [8.3]
+        filament: [4.*, 5.*]
+        include:
+          - filament: 4.*
+            laravel: 11.*
+            testbench: 9.*
+          - laravel: 12.*
+            testbench: 10.*
+            filament: 5.*
+
+    name: P${{ matrix.php }} - F${{ matrix.filament }} - L${{ matrix.laravel }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php }}
+          extensions: dom, curl, libxml, mbstring, zip, pcntl, pdo, sqlite, pdo_sqlite, bcmath, soap, intl, gd, exif, iconv, imagick, fileinfo
+          coverage: xdebug
+
+      - name: Setup problem matchers
+        run: |
+          echo "::add-matcher::${{ runner.tool_cache }}/php.json"
+          echo "::add-matcher::${{ runner.tool_cache }}/phpunit.json"
+
+      - name: Install dependencies
+        run: |
+          if [ -n "${{ secrets.FILAMENT_USER }}" ] && [ -n "${{ secrets.FILAMENT_TOKEN }}" ]; then
+            composer config repositories.filament composer https://packages.filamentphp.com/composer
+            composer config --auth http-basic.packages.filamentphp.com "${{ secrets.FILAMENT_USER }}" "${{ secrets.FILAMENT_TOKEN }}"
+          else
+            composer config --unset repositories.filament || true
+            echo "Filament secrets not available; using Packagist repository only."
+          fi
+          composer remove filament/blueprint laravel/boost --dev --no-interaction --no-update
+          composer require "filament/filament:${{ matrix.filament }}" "laravel/framework:${{ matrix.laravel }}" --no-interaction --no-update
+          composer require --dev "orchestra/testbench:${{ matrix.testbench }}" --no-interaction --no-update
+          composer update --prefer-stable --prefer-dist --no-interaction --no-scripts
+
+      - name: List Installed Dependencies
+        run: composer show -D
+
+      - name: Execute tests
+        env:
+          XDEBUG_MODE: coverage
+        run: vendor/bin/pest --ci

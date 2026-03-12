@@ -1,0 +1,16 @@
+{
+    "servers": {
+        "laravel-boost": {
+            "command": "wsl.exe",
+            "args": [
+                "/usr/bin/php8.3",
+                "/home/coringawc/filament-single-record-resource/vendor/orchestra/testbench-core/laravel/artisan",
+                "boost:mcp"
+            ]
+        },
+        "context7": {
+            "type": "http",
+            "url": "https://mcp.context7.com/mcp"
+        }
+    }
+}

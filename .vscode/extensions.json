@@ -1,0 +1,37 @@
+{
+    "recommendations": [
+        // --- PHP ---
+        "bmewburn.vscode-intelephense-client",
+        "xdebug.php-debug",
+        "sanderronde.phpstan-vscode",
+        "devsense.composer-php-vscode",
+        "junstyle.php-cs-fixer",
+        "neilbrayfield.php-docblocker",
+        "mehedidracula.php-namespace-resolver",
+        "jaguadoromero.vscode-php-create-class",
+
+        // --- Laravel / Livewire ---
+        "laravel.vscode-laravel",
+        "amiralizadeh9480.laravel-extra-intellisense",
+        "shufo.vscode-blade-formatter",
+        "cierra.livewire-vscode",
+        "sperovita.alpinejs-syntax-highlight",
+        "austenc.laravel-docs",
+
+        // --- Editor / DX ---
+        "pkief.material-icon-theme",
+        "editorconfig.editorconfig",
+        "esbenp.prettier-vscode",
+        "bradlc.vscode-tailwindcss",
+        "mikestead.dotenv",
+        "streetsidesoftware.code-spell-checker",
+
+        // --- Git ---
+        "eamodio.gitlens",
+        "donjayamanne.githistory",
+
+        // --- GitHub / Copilot ---
+        "github.copilot-chat",
+        "github.vscode-pull-request-github"
+    ]
+}

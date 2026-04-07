@@ -32,7 +32,7 @@ test('capture my wallet and deepest nested resource', async ({ page }) => {
     })
     await page.waitForTimeout(1000)
     await page.screenshot({
-        path: 'resources/images/my-wallet.png',
+        path: 'docs/images/my-wallet.png',
         fullPage: true,
     })
 
@@ -42,7 +42,7 @@ test('capture my wallet and deepest nested resource', async ({ page }) => {
     )
     await page.waitForTimeout(1000)
     await page.screenshot({
-        path: 'resources/images/my-wallet-company-product.png',
+        path: 'docs/images/my-wallet-company-product.png',
         fullPage: true,
     })
 })

@@ -186,11 +186,11 @@ This package also helps preserve breadcrumb consistency in deep nested routes.
 
 ### MyWallet (Root Single Resource)
 
-![MyWallet page](resources/images/my-wallet.png)
+![MyWallet page](docs/images/my-wallet.png)
 
 ### Deep Nested Resource (MyWallet -> Companies -> Products)
 
-![Deep nested product page](resources/images/my-wallet-company-product.png)
+![Deep nested product page](docs/images/my-wallet-company-product.png)
 
 ## Testing
 

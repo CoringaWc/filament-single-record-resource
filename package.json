@@ -2,13 +2,10 @@
     "private": true,
     "type": "module",
     "scripts": {
-        "dev": "node bin/build.js --dev",
-        "build": "node bin/build.js"
+        "screenshots": "npx playwright test tmp-screenshots.spec.js"
     },
     "devDependencies": {
         "@playwright/test": "^1.58.2",
-        "esbuild": "^0.25.5",
-        "prettier": "^3.5.3",
-        "tailwindcss": "^4.2.1"
+        "prettier": "^3.5.3"
     }
 }

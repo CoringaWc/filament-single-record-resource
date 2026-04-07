@@ -1,0 +1,7 @@
+parameters:
+	ignoreErrors:
+		-
+			message: '#^PHPDoc tag @mixin contains generic class Livewire\\Features\\SupportTesting\\Testable but does not specify its types\: TComponent$#'
+			identifier: missingType.generics
+			count: 1
+			path: src/Testing/TestsFilamentSingleRecordResource.php

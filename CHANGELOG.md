@@ -2,6 +2,10 @@
 
 All notable changes to `filament-single-record-resource` will be documented in this file.
 
+## v1.0.2 - 2026-04-07
+
+**Full Changelog**: https://github.com/CoringaWc/filament-single-record-resource/compare/v1.0.1...v1.0.2
+
 ## v1.0.1 - 2026-04-07
 
 **Full Changelog**: https://github.com/CoringaWc/filament-single-record-resource/compare/v1.0.0...v1.0.1

@@ -32,11 +32,13 @@ composer require coringawc/filament-single-record-resource
 This package is based on two traits:
 
 1. `HasSingleRecordResource` (Resource trait)
+
 - Redirects index/navigation behavior to `view`
 - Keeps sidebar navigation working without an `index` page
 - Helps nested resources resolve root URLs/slugs in single-record chains
 
 2. `HasSingleRecord` (Page trait for `ViewRecord` and `EditRecord`)
+
 - Resolves the root single record automatically
 - Supports custom resolution via builder or custom resolver method
 - Normalizes breadcrumbs in deep nested resources

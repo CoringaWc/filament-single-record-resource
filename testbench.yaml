@@ -10,13 +10,13 @@ providers:
   - 'CoringaWc\FilamentSingleRecordResource\FilamentSingleRecordResourceServiceProvider'
 
 env:
-  APP_KEY: "base64:DfF+Pq/5WCRHPXGnFUtoNn2dO4Zg/LB0LCzhyk98QH4="
+  APP_KEY: 'base64:DfF+Pq/5WCRHPXGnFUtoNn2dO4Zg/LB0LCzhyk98QH4='
   APP_ENV: testing
   APP_DEBUG: true
 
   DB_CONNECTION: sqlite
   # For unit tests (default — no persistence between requests):
-  DB_DATABASE: ":memory:"
+  DB_DATABASE: ':memory:'
   # For workbench serve (persistence across HTTP requests):
   # DB_DATABASE: "/var/www/html/workbench/database/database.sqlite"
 

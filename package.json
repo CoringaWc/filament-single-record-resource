@@ -2,7 +2,7 @@
     "private": true,
     "type": "module",
     "scripts": {
-        "screenshots": "npx playwright test tmp-screenshots.spec.js"
+        "screenshots": "npx playwright test workbench/tmp-screenshots.spec.js"
     },
     "devDependencies": {
         "@playwright/test": "^1.58.2",

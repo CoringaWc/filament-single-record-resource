@@ -1,12 +1,9 @@
 {
     "servers": {
         "laravel-boost": {
-            "command": "wsl.exe",
-            "args": [
-                "/usr/bin/php8.3",
-                "/home/coringawc/filament-single-record-resource/vendor/orchestra/testbench-core/laravel/artisan",
-                "boost:mcp"
-            ]
+            "command": "bash",
+            "args": ["scripts/boost-mcp.sh"],
+            "cwd": "${workspaceFolder}"
         },
         "context7": {
             "type": "http",

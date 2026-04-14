@@ -4,6 +4,8 @@
 
 This plugin implements the single-record resource pattern for Filament.
 
+It also exposes an explicit Resource contract through `SingleRecordResolvableResource` for codebases that want static-analysis-friendly typing.
+
 Use it when a resource should represent one business record per context, not a list. Typical examples:
 
 - My Wallet
@@ -27,6 +29,7 @@ Responsibilities:
 - Keep sidebar navigation working even without an `index` page.
 - Allow root resource access with `view()` on the resolved single record when `viewAny()` is denied.
 - Provide the default shared single-record resolution hooks on the Resource.
+- Pair naturally with `SingleRecordResolvableResource` when you want an explicit public contract.
 - Resolve root parent for nested chains (`resolveSingleRecordParent()`).
 - Normalize nested slug/index behavior in single-record hierarchies.
 
@@ -40,6 +43,7 @@ Responsibilities:
 - Allow custom resolution strategy via:
     - `resolveSingleRecordBuilder(Builder $query)`
     - `resolveSingleRecord()`
+- Prefer the Resource contract when available, while remaining compatible with legacy Resources that expose the same methods manually.
 - Normalize heading and breadcrumb behavior.
 - Fix nested breadcrumb collisions and ensure root breadcrumb prefix exists.
 
@@ -76,10 +80,11 @@ return $panel
 namespace App\Filament\Resources\MyWallets;
 
 use App\Filament\Resources\MyWallets\Pages\ViewMyWallet;
+use CoringaWc\FilamentSingleRecordResource\Contracts\SingleRecordResolvableResource;
 use CoringaWc\FilamentSingleRecordResource\Traits\HasSingleRecordResource;
 use Filament\Resources\Resource;
 
-class MyWalletResource extends Resource
+class MyWalletResource extends Resource implements SingleRecordResolvableResource
 {
     use HasSingleRecordResource;
 
@@ -154,11 +159,12 @@ public static function getPages(): array
 namespace App\Filament\Resources\MyWallets\Resources\Companies;
 
 use App\Filament\Resources\MyWallets\MyWalletResource;
+use CoringaWc\FilamentSingleRecordResource\Contracts\SingleRecordResolvableResource;
 use CoringaWc\FilamentSingleRecordResource\Traits\HasSingleRecordResource;
 use Filament\Resources\ParentResourceRegistration;
 use Filament\Resources\Resource;
 
-class CompanyResource extends Resource
+class CompanyResource extends Resource implements SingleRecordResolvableResource
 {
     use HasSingleRecordResource;
 
@@ -194,6 +200,7 @@ For a deep chain like `MyWallet -> Companies -> Products`, apply `HasSingleRecor
     - Resource: `HasSingleRecordResource`
     - Record page (`ViewRecord` / `EditRecord`): `HasSingleRecord`
 - Root single-record resources should expose `view` as the main entry route.
+- Prefer implementing `SingleRecordResolvableResource` on Resources using `HasSingleRecordResource` so static analysis can understand the contract explicitly.
 - If you remove parent IDs from nested URLs, enforce strict scoping in your data layer.
 - Do not use this plugin for collection-first resources where `index` is the main UX.
 

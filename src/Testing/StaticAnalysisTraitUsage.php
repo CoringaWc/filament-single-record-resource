@@ -2,6 +2,7 @@
 
 namespace CoringaWc\FilamentSingleRecordResource\Testing;
 
+use CoringaWc\FilamentSingleRecordResource\Contracts\SingleRecordResolvableResource;
 use CoringaWc\FilamentSingleRecordResource\Traits\HasSingleRecord;
 use CoringaWc\FilamentSingleRecordResource\Traits\HasSingleRecordResource;
 use Filament\Resources\Pages\EditRecord;
@@ -16,7 +17,7 @@ final class StaticAnalysisTraitUsage
     public static function ensureTraitsAreUsed(): void {}
 }
 
-class StaticAnalysisSingleRecordResource extends Resource
+class StaticAnalysisSingleRecordResource extends Resource implements SingleRecordResolvableResource
 {
     use HasSingleRecordResource;
 

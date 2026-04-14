@@ -2,6 +2,7 @@
 
 namespace Workbench\App\Filament\Resources\MyWallets;
 
+use CoringaWc\FilamentSingleRecordResource\Contracts\SingleRecordResolvableResource;
 use CoringaWc\FilamentSingleRecordResource\Traits\HasSingleRecordResource;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
@@ -14,7 +15,7 @@ use Workbench\App\Filament\Resources\Wallets\Schemas\WalletInfolist;
 use Workbench\App\Filament\Resources\Wallets\Tables\WalletsTable;
 use Workbench\App\Models\Wallet;
 
-class MyWalletResource extends Resource
+class MyWalletResource extends Resource implements SingleRecordResolvableResource
 {
     use HasSingleRecordResource;
 

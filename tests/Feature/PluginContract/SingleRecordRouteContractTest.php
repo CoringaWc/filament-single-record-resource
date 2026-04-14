@@ -1,5 +1,6 @@
 <?php
 
+use CoringaWc\FilamentSingleRecordResource\Contracts\SingleRecordResolvableResource;
 use CoringaWc\FilamentSingleRecordResource\Traits\HasSingleRecord;
 use CoringaWc\FilamentSingleRecordResource\Traits\HasSingleRecordResource;
 use Filament\Resources\Pages\EditRecord;
@@ -46,7 +47,7 @@ class ContractDeniedPolicy
     }
 }
 
-class ContractRootResource extends Resource
+class ContractRootResource extends Resource implements SingleRecordResolvableResource
 {
     use HasSingleRecordResource;
 
@@ -60,7 +61,7 @@ class ContractRootResource extends Resource
     }
 }
 
-class ContractNestedResource extends Resource
+class ContractNestedResource extends Resource implements SingleRecordResolvableResource
 {
     use HasSingleRecordResource;
 
@@ -98,7 +99,7 @@ class ContractNestedEditPage extends EditRecord
     protected static string $resource = ContractNestedResource::class;
 }
 
-class ContractViewOnlyRootResource extends Resource
+class ContractViewOnlyRootResource extends Resource implements SingleRecordResolvableResource
 {
     use HasSingleRecordResource;
 
@@ -117,7 +118,7 @@ class ContractViewOnlyRootResource extends Resource
     }
 }
 
-class ContractDeniedRootResource extends Resource
+class ContractDeniedRootResource extends Resource implements SingleRecordResolvableResource
 {
     use HasSingleRecordResource;
 
@@ -133,6 +134,61 @@ class ContractDeniedRootResource extends Resource
     public static function resolveSingleRecord(): ?Model
     {
         return tap(new ContractDeniedModel, fn (ContractDeniedModel $record) => $record->setAttribute('id', 999));
+    }
+}
+
+class ContractLegacyCompatibleRootResource extends Resource
+{
+    use HasSingleRecordResource;
+
+    protected static ?string $model = ContractViewOnlyModel::class;
+
+    public static function getPages(): array
+    {
+        return [
+            'view' => ContractRootViewPage::route('/legacy-compatible'),
+        ];
+    }
+
+    public static function resolveSingleRecord(): ?Model
+    {
+        return tap(new ContractViewOnlyModel, fn (ContractViewOnlyModel $record) => $record->setAttribute('id', 321));
+    }
+}
+
+class ContractLegacyCompatibleRootViewPage extends ViewRecord
+{
+    use HasSingleRecord;
+
+    protected static string $resource = ContractLegacyCompatibleRootResource::class;
+
+    public function resolveSingleRecordForTest(): ?Model
+    {
+        return $this->resolveSingleRecord();
+    }
+}
+
+class ContractInvalidRootResource extends Resource
+{
+    protected static ?string $model = Model::class;
+
+    public static function getPages(): array
+    {
+        return [
+            'view' => ContractRootViewPage::route('/invalid'),
+        ];
+    }
+}
+
+class ContractInvalidRootViewPage extends ViewRecord
+{
+    use HasSingleRecord;
+
+    protected static string $resource = ContractInvalidRootResource::class;
+
+    public static function resolveResourceContractForTest(): string
+    {
+        return static::getSingleRecordResourceContract();
     }
 }
 
@@ -172,4 +228,17 @@ it('denies a root single-record resource when the resolved record cannot be view
 
     expect(ContractDeniedRootResource::canViewAny())->toBeFalse();
     expect(ContractDeniedRootResource::canAccess())->toBeFalse();
+});
+
+it('keeps compatibility with resources that expose the methods without implementing the interface', function (): void {
+    $page = new ContractLegacyCompatibleRootViewPage;
+
+    expect($page->resolveSingleRecordForTest())
+        ->toBeInstanceOf(ContractViewOnlyModel::class)
+        ->and($page->resolveSingleRecordForTest()?->getKey())->toBe(321);
+});
+
+it('fails fast when a page uses HasSingleRecord without a compatible resource contract', function (): void {
+    expect(fn (): string => ContractInvalidRootViewPage::resolveResourceContractForTest())
+        ->toThrow(LogicException::class, SingleRecordResolvableResource::class);
 });

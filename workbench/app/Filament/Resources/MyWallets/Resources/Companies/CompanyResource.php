@@ -2,6 +2,7 @@
 
 namespace Workbench\App\Filament\Resources\MyWallets\Resources\Companies;
 
+use CoringaWc\FilamentSingleRecordResource\Contracts\SingleRecordResolvableResource;
 use CoringaWc\FilamentSingleRecordResource\Traits\HasSingleRecordResource;
 use Filament\Resources\ParentResourceRegistration;
 use Filament\Resources\Resource;
@@ -18,7 +19,7 @@ use Workbench\App\Filament\Resources\MyWallets\Resources\Companies\Pages\ViewCom
 use Workbench\App\Filament\Resources\MyWallets\Resources\Companies\RelationManagers\ProductsRelationManager;
 use Workbench\App\Models\Company;
 
-class CompanyResource extends Resource
+class CompanyResource extends Resource implements SingleRecordResolvableResource
 {
     use HasSingleRecordResource;
 

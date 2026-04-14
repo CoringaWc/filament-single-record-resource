@@ -2,6 +2,7 @@
 
 namespace CoringaWc\FilamentSingleRecordResource\Traits;
 
+use CoringaWc\FilamentSingleRecordResource\Contracts\SingleRecordResolvableResource;
 use Filament\Facades\Filament;
 use Filament\Navigation\NavigationItem;
 use Filament\Panel;
@@ -33,6 +34,7 @@ use function Filament\Support\original_request;
  * - `getNavigationItems()` bypasses Filament's `hasPage('index')` guard
  * - `canAccess()` falls back to `view` on the resolved record when `viewAny` is denied
  * - `resolveSingleRecord()` / `resolveSingleRecordBuilder()` centralize default record lookup
+ * - `SingleRecordResolvableResource` can be implemented for an explicit public contract
  *
  * ### Nested resource (e.g. `Tenants\TenantResource` under `MyWalletResource`)
  *
@@ -92,6 +94,8 @@ use function Filament\Support\original_request;
  * @phpstan-require-extends \Filament\Resources\Resource
  *
  * @mixin \Filament\Resources\Resource
+ *
+ * @see SingleRecordResolvableResource
  */
 trait HasSingleRecordResource
 {

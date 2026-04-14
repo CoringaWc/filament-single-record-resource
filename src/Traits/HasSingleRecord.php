@@ -3,6 +3,7 @@
 namespace CoringaWc\FilamentSingleRecordResource\Traits;
 
 use App\Models\User;
+use CoringaWc\FilamentSingleRecordResource\Contracts\SingleRecordResolvableResource;
 use Filament\Facades\Filament;
 use Filament\Resources\Pages\EditRecord;
 use Filament\Resources\Pages\ViewRecord;
@@ -32,9 +33,10 @@ use Illuminate\Routing\Exceptions\UrlGenerationException;
  * - `getHeading()` displays the model label instead of the record title.
  * - `getBreadcrumbs()` suppresses the record title in the breadcrumb.
  * - `resolveSingleRecord()` resolves via `resolveSingleRecordBuilder()` by default.
- * - `resolveSingleRecordBuilder()` applies `whereBelongsTo($user)` to the model query.
+ * - `resolveSingleRecordBuilder()` prefers the Resource contract by default.
+ * - Page-specific overrides remain supported for backward compatibility.
  *
- * Override `resolveSingleRecord()` when you need different logic (e.g. auto-create):
+ * Override `resolveSingleRecord()` on the page when you need page-specific logic:
  *
  * ```php
  * protected function resolveSingleRecord(): ?Model
@@ -51,7 +53,10 @@ use Illuminate\Routing\Exceptions\UrlGenerationException;
  * }
  * ```
  *
- * Override `resolveSingleRecordBuilder()` to add extra query conditions:
+ * Prefer implementing `SingleRecordResolvableResource` on the Resource and overriding
+ * `resolveSingleRecordBuilder()` there so page mount and authorization can share the
+ * same lookup strategy. For backward compatibility, the page still accepts Resources
+ * that expose the same methods without implementing the interface.
  *
  * ```php
  * protected function resolveSingleRecordBuilder(Builder $query): Builder
@@ -106,6 +111,40 @@ trait HasSingleRecord
     // ── ROOT BEHAVIOR ───────────────────────────────────────────────────────
 
     /**
+     * Returns the associated Resource after validating that it exposes the
+     * single-record resolution hooks required by this page trait.
+     *
+     * Resources implementing `SingleRecordResolvableResource` express the contract
+     * explicitly for static analysis. Legacy Resources that define the same methods
+     * manually are still accepted for backward compatibility.
+     *
+     * @return class-string<resource>
+     */
+    protected static function getSingleRecordResourceContract(): string
+    {
+        /** @var class-string<resource> $resource */
+        $resource = static::getResource();
+
+        if (is_a($resource, SingleRecordResolvableResource::class, true)) {
+            return $resource;
+        }
+
+        if (
+            method_exists($resource, 'resolveSingleRecord')
+            && method_exists($resource, 'resolveSingleRecordBuilder')
+        ) {
+            return $resource;
+        }
+
+        throw new \LogicException(sprintf(
+            'Page [%s] uses HasSingleRecord, but Resource [%s] does not expose the single-record resolution contract. Implement %s on the Resource or define resolveSingleRecord() and resolveSingleRecordBuilder() manually.',
+            static::class,
+            $resource,
+            SingleRecordResolvableResource::class,
+        ));
+    }
+
+    /**
      * Resolves the record to display.
      *
      * By default, retrieves the authenticated user and runs `resolveSingleRecordBuilder()`
@@ -117,23 +156,52 @@ trait HasSingleRecord
      */
     protected function resolveSingleRecord(): ?Model
     {
-        $modelClass = static::getResource()::getModel();
+        if ($this->usesCustomPageSingleRecordBuilder()) {
+            $modelClass = static::getResource()::getModel();
 
-        /** @var Model|null $record */
-        $record = $this->resolveSingleRecordBuilder($modelClass::query())->first();
+            /** @var Model|null $record */
+            $record = $this->resolveSingleRecordBuilder($modelClass::query())->first();
+
+            return $record;
+        }
+
+        $resource = static::getSingleRecordResourceContract();
+
+        if (is_a($resource, SingleRecordResolvableResource::class, true)) {
+            /** @var class-string<resource&SingleRecordResolvableResource> $typedResource */
+            $typedResource = $resource;
+
+            return $typedResource::resolveSingleRecord();
+        }
+
+        /** @var ?Model $record */
+        /** @phpstan-ignore-next-line legacy fallback guarded by getSingleRecordResourceContract() */
+        $record = $resource::{'resolveSingleRecord'}();
 
         return $record;
     }
 
     /**
+     * Determines whether the concrete page overrides the default builder behavior
+     * provided by this trait.
+     */
+    protected function usesCustomPageSingleRecordBuilder(): bool
+    {
+        $method = new \ReflectionMethod(static::class, 'resolveSingleRecordBuilder');
+
+        return $method->getFileName() !== __FILE__;
+    }
+
+    /**
      * Query builder used to locate the authenticated user's single record.
      *
-     * Applies `whereBelongsTo($user)` by default — works when the resource model has a
-     * `BelongsTo` relationship to the authenticated user model. If the relationship does
-     * not exist, returns an empty query to prevent exposing other users' records;
-     * override this method in that case.
+     * Prefers the Resource builder contract by default so authorization fallback and
+     * page mounting can share a common lookup strategy.
      *
-     * Override to add extra conditions (keep `parent::` to compose):
+     * Override on the page only when the page intentionally needs a different lookup
+     * than the Resource itself. Existing page-level overrides remain supported.
+     *
+     * If you do override on the page, you can still compose with the Resource logic:
      *
      * ```php
      * protected function resolveSingleRecordBuilder(Builder $query): Builder
@@ -148,18 +216,20 @@ trait HasSingleRecord
      */
     protected function resolveSingleRecordBuilder(Builder $query): Builder
     {
-        $user = Filament::auth()->user();
+        $resource = static::getSingleRecordResourceContract();
 
-        if (! $user instanceof Model) {
-            return $query->whereKey(-1);
+        if (is_a($resource, SingleRecordResolvableResource::class, true)) {
+            /** @var class-string<resource&SingleRecordResolvableResource> $typedResource */
+            $typedResource = $resource;
+
+            return $typedResource::resolveSingleRecordBuilder($query);
         }
 
-        try {
-            return $query->whereBelongsTo($user);
-        } catch (\RuntimeException) {
-            // Model has no BelongsTo relationship for the user — override this method.
-            return $query->whereKey(-1);
-        }
+        /** @var Builder<Model> $builder */
+        /** @phpstan-ignore-next-line legacy fallback guarded by getSingleRecordResourceContract() */
+        $builder = $resource::{'resolveSingleRecordBuilder'}($query);
+
+        return $builder;
     }
 
     /**

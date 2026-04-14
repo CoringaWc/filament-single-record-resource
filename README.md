@@ -31,6 +31,8 @@ composer require coringawc/filament-single-record-resource
 
 This package is based on two traits:
 
+It also exposes an explicit contract interface, `SingleRecordResolvableResource`, for Resources that want first-class static-analysis support.
+
 1. `HasSingleRecordResource` (Resource trait)
 
 - Redirects index/navigation behavior to `view`
@@ -43,6 +45,7 @@ This package is based on two traits:
 
 - Resolves the root single record automatically
 - Supports custom resolution via builder or custom resolver method
+- Prefers the Resource contract when available, while remaining compatible with legacy Resources that expose the same methods manually
 - Normalizes breadcrumbs in deep nested resources
 
 ## Step-by-Step Implementation
@@ -58,10 +61,11 @@ namespace App\Filament\Resources\MyWallets;
 
 use App\Filament\Resources\MyWallets\Pages\EditMyWallet;
 use App\Filament\Resources\MyWallets\Pages\ViewMyWallet;
+use CoringaWc\FilamentSingleRecordResource\Contracts\SingleRecordResolvableResource;
 use CoringaWc\FilamentSingleRecordResource\Traits\HasSingleRecordResource;
 use Filament\Resources\Resource;
 
-class MyWalletResource extends Resource
+class MyWalletResource extends Resource implements SingleRecordResolvableResource
 {
     use HasSingleRecordResource;
 
@@ -144,6 +148,8 @@ public function user(): BelongsTo
 
 With this, your single-record root page resolves the wallet for the logged-in user automatically.
 
+For explicit static-analysis support, implement `SingleRecordResolvableResource` on Resources using `HasSingleRecordResource`. The package still accepts legacy Resources that define the same methods manually, but the interface is now the recommended public contract.
+
 ## Authorization Behavior
 
 Filament normally uses `viewAny()` to decide whether a Resource can register navigation and be accessed at the Resource level.
@@ -157,24 +163,24 @@ This means a policy can intentionally deny listing while still allowing the user
 
 ## Custom Resolution Strategies
 
-If your rule is not a simple `belongsTo(user)`, override one of the methods below in the page class.
+If your rule is not a simple `belongsTo(user)`, prefer overriding one of the methods below on the Resource so authorization and page loading stay aligned.
 
-### A) Customize builder (`resolveSingleRecordBuilder`)
+### A) Customize builder on the Resource (`resolveSingleRecordBuilder`)
 
 ```php
-protected function resolveSingleRecordBuilder(Builder $query): Builder
+public static function resolveSingleRecordBuilder(Builder $query): Builder
 {
     return parent::resolveSingleRecordBuilder($query)
         ->where('active', true);
 }
 ```
 
-### B) Full custom resolver (`resolveSingleRecord`)
+### B) Full custom resolver on the Resource (`resolveSingleRecord`)
 
 Use this when you need `firstOrCreate`, tenant logic, or complex business rules.
 
 ```php
-protected function resolveSingleRecord(): ?Model
+public static function resolveSingleRecord(): ?Model
 {
     /** @var \App\Models\User|null $user */
     $user = filament()->auth()->user();
@@ -187,6 +193,18 @@ protected function resolveSingleRecord(): ?Model
 }
 ```
 
+### C) Optional page-specific override
+
+If a specific `ViewRecord`/`EditRecord` page truly needs different resolution behavior than the Resource, you can still override the page methods:
+
+```php
+protected function resolveSingleRecordBuilder(Builder $query): Builder
+{
+    return parent::resolveSingleRecordBuilder($query)
+        ->where('active', true);
+}
+```
+
 ## Nested Resources
 
 For nested chains (for example `MyWallet -> Companies -> Products`):
@@ -194,6 +212,7 @@ For nested chains (for example `MyWallet -> Companies -> Products`):
 1. Keep `HasSingleRecordResource` on resources that follow the single-record flow
 2. Keep `HasSingleRecord` in deep `ViewRecord`/`EditRecord` pages
 3. If removing parent IDs from URLs, enforce strict query scoping in your models/pages
+4. Prefer implementing `SingleRecordResolvableResource` on Resources using `HasSingleRecordResource` so static analysis can understand the contract explicitly
 
 This package also helps preserve breadcrumb consistency in deep nested routes.
 

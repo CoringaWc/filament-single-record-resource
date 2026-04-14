@@ -2,6 +2,20 @@
 
 All notable changes to `filament-single-record-resource` will be documented in this file.
 
+## v1.0.4 - 2026-04-14
+
+### Fixes
+
+- allow root single-record resources to be accessed with `view` on the resolved record even when `viewAny` is denied
+- centralize default single-record resolution hooks on the Resource for authorization fallback
+- document the authorization behavior in README and AGENTS
+
+### Validation
+
+- full Pest suite passed
+- PHPStan passed
+- Pint passed
+
 ## v1.0.3 - 2026-04-08
 
 **Full Changelog**: https://github.com/CoringaWc/filament-single-record-resource/compare/v1.0.2...v1.0.3

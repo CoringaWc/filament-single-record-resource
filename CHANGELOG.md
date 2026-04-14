@@ -2,6 +2,23 @@
 
 All notable changes to `filament-single-record-resource` will be documented in this file.
 
+## v1.1.0 - 2026-04-14
+
+### Added
+
+- add the explicit `SingleRecordResolvableResource` contract for static-analysis-friendly Resource typing
+
+### Changed
+
+- HasSingleRecord now prefers the explicit Resource contract while remaining compatible with legacy Resources that expose the same methods manually
+- workbench examples, tests, comments, README and AGENTS were updated to reflect the new contract
+
+### Validation
+
+- full Pest suite passed
+- PHPStan passed
+- Pint passed
+
 ## v1.0.4 - 2026-04-14
 
 ### Fixes

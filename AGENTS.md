@@ -25,6 +25,8 @@ Responsibilities:
 - Detect root vs nested resource (`isNestedResource()`).
 - Redirect `getIndexUrl()` behavior to `view` route.
 - Keep sidebar navigation working even without an `index` page.
+- Allow root resource access with `view()` on the resolved single record when `viewAny()` is denied.
+- Provide the default shared single-record resolution hooks on the Resource.
 - Resolve root parent for nested chains (`resolveSingleRecordParent()`).
 - Normalize nested slug/index behavior in single-record hierarchies.
 
@@ -224,6 +226,18 @@ Fixes:
 Fix:
 
 - Use current `HasSingleRecord::getBreadcrumbs()` logic and keep trait on deep nested record pages.
+
+### Root single-record page unexpectedly requires list access
+
+Symptom:
+
+- The user can `view` their own record but still cannot open the root single-record resource because `viewAny` is denied.
+
+Fix:
+
+1. Keep `HasSingleRecordResource` on the root Resource.
+2. Make sure the Resource can resolve the user-owned record through the default builder or a custom `resolveSingleRecord()` / `resolveSingleRecordBuilder()` override.
+3. Ensure the policy returns `true` for `view($user, $resolvedRecord)` even if `viewAny()` returns `false`.
 
 ## Testing
 

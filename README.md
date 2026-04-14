@@ -35,6 +35,8 @@ This package is based on two traits:
 
 - Redirects index/navigation behavior to `view`
 - Keeps sidebar navigation working without an `index` page
+- Falls back to `view` authorization on the resolved record when `viewAny` is denied
+- Exposes shared record resolution hooks on the Resource
 - Helps nested resources resolve root URLs/slugs in single-record chains
 
 2. `HasSingleRecord` (Page trait for `ViewRecord` and `EditRecord`)
@@ -141,6 +143,17 @@ public function user(): BelongsTo
 ```
 
 With this, your single-record root page resolves the wallet for the logged-in user automatically.
+
+## Authorization Behavior
+
+Filament normally uses `viewAny()` to decide whether a Resource can register navigation and be accessed at the Resource level.
+
+For a root single-record resource, that default is too strict because there is no collection UX. This package now treats the Resource as accessible when:
+
+- `viewAny()` is allowed, or
+- `viewAny()` is denied but `view()` is allowed for the resolved single record
+
+This means a policy can intentionally deny listing while still allowing the user to open their own single record.
 
 ## Custom Resolution Strategies
 

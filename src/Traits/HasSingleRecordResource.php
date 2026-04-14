@@ -2,9 +2,11 @@
 
 namespace CoringaWc\FilamentSingleRecordResource\Traits;
 
+use Filament\Facades\Filament;
 use Filament\Navigation\NavigationItem;
 use Filament\Panel;
 use Filament\Resources\Resource;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 
 use function Filament\Support\original_request;
@@ -29,6 +31,8 @@ use function Filament\Support\original_request;
  * - `getIndexUrl()` points to `getUrl('view')` — no `.index` route needed
  * - `getNavigationUrl()` points to `getUrl('view')` — correct sidebar link
  * - `getNavigationItems()` bypasses Filament's `hasPage('index')` guard
+ * - `canAccess()` falls back to `view` on the resolved record when `viewAny` is denied
+ * - `resolveSingleRecord()` / `resolveSingleRecordBuilder()` centralize default record lookup
  *
  * ### Nested resource (e.g. `Tenants\TenantResource` under `MyWalletResource`)
  *
@@ -92,6 +96,32 @@ use function Filament\Support\original_request;
 trait HasSingleRecordResource
 {
     /**
+     * Root single-record resources should remain accessible when Filament denies
+     * `viewAny()`, as long as the authenticated user can `view()` the resolved record.
+     *
+     * This keeps resource registration and sidebar access aligned with the single-record
+     * UX, where there is no collection page and the entrypoint is always the `view` page.
+     */
+    public static function canAccess(): bool
+    {
+        if (static::isNestedResource()) {
+            return parent::canAccess();
+        }
+
+        if (parent::canAccess()) {
+            return true;
+        }
+
+        $record = static::resolveSingleRecord();
+
+        if ($record === null) {
+            return false;
+        }
+
+        return static::canView($record);
+    }
+
+    /**
      * Indicates whether the resource is nested (has a parent configured).
      * Considers both the static `$parentResource` property and a custom
      * `getParentResourceRegistration()` override.
@@ -138,6 +168,50 @@ trait HasSingleRecordResource
         }
 
         return $parent;
+    }
+
+    /**
+     * Resolves the authenticated user's single record for root resources.
+     *
+     * Exposed on the Resource so authorization, navigation, and page mounting all share
+     * the same resolution strategy by default.
+     */
+    public static function resolveSingleRecord(): ?Model
+    {
+        if (static::isNestedResource()) {
+            return null;
+        }
+
+        $modelClass = static::getModel();
+
+        /** @var Model|null $record */
+        $record = static::resolveSingleRecordBuilder($modelClass::query())->first();
+
+        return $record;
+    }
+
+    /**
+     * Query builder used to locate the authenticated user's single record.
+     *
+     * Override this on the Resource when the default `whereBelongsTo($user)` lookup is
+     * insufficient and you still want all entrypoints to share the same logic.
+     *
+     * @param  Builder<Model>  $query
+     * @return Builder<Model>
+     */
+    public static function resolveSingleRecordBuilder(Builder $query): Builder
+    {
+        $user = Filament::auth()->user();
+
+        if (! $user instanceof Model) {
+            return $query->whereKey(-1);
+        }
+
+        try {
+            return $query->whereBelongsTo($user);
+        } catch (\RuntimeException) {
+            return $query->whereKey(-1);
+        }
     }
 
     /**

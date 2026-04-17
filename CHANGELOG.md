@@ -2,6 +2,14 @@
 
 All notable changes to `filament-single-record-resource` will be documented in this file.
 
+## v1.1.1 - 2026-04-17
+
+### Fixed
+
+- set the workbench container `DB_DATABASE` to the persistent Testbench sqlite path so HTTP requests no longer fall back to the in-memory `testing` connection
+
+**Full Changelog**: https://github.com/CoringaWc/filament-single-record-resource/compare/v1.1.0...v1.1.1
+
 ## v1.1.0 - 2026-04-14
 
 ### Added

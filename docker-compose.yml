@@ -37,6 +37,7 @@ services:
       COMPOSER_CACHE_DIR: /tmp/composer/cache
       NPM_CONFIG_CACHE: /tmp/.npm
       XDG_CACHE_HOME: /tmp/.cache
+      DB_DATABASE: /var/www/html/vendor/orchestra/testbench-core/laravel/database/database.sqlite
       WORKBENCH_PORT: ${WORKBENCH_PORT:-8001}
       PHP_CLI_SERVER_WORKERS: ${PHP_CLI_SERVER_WORKERS:-4}
     ports:

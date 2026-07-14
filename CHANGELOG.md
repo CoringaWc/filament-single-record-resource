@@ -2,6 +2,18 @@
 
 All notable changes to `filament-single-record-resource` will be documented in this file.
 
+## v1.1.2 - 2026-07-14
+
+### What's Changed
+
+* Harden dependency update automation by @CoringaWc in https://github.com/CoringaWc/filament-single-record-resource/pull/1
+
+### New Contributors
+
+* @CoringaWc made their first contribution in https://github.com/CoringaWc/filament-single-record-resource/pull/1
+
+**Full Changelog**: https://github.com/CoringaWc/filament-single-record-resource/compare/v1.1.1...v1.1.2
+
 ## v1.1.1 - 2026-04-17
 
 ### Fixed
